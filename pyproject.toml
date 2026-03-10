@@ -1,0 +1,100 @@
+[project]
+name = "opencosmos-harvester"
+version = "0.1.0"
+description = "Add your description here"
+requires-python = ">=3.13"
+
+readme = "README.md"
+license = {file = "LICENSE"}
+authors = [
+  {name = "Sparkgeo UK", email = "jdonovan@sparkgeo.com"}
+]
+maintainers = [
+  {name = "Sparkgeo UK", email = "jdonovan@sparkgeo.com"}
+]
+classifiers = [
+  "Development Status :: 5 - Production/Stable",
+  "Intended Audience :: Science/Research",
+  "Intended Audience :: Developers",
+  "License :: OSI Approved :: BSD License",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.13",
+  "Programming Language :: Python :: 3 :: Only",
+]
+dependencies = [
+    "boto3",
+    "botocore",
+    "click",
+    "eodhp-utils",
+    "inflection",
+    "pulsar-client",
+    "pystac",
+    "pystac-client",
+    "requests",
+]
+
+[dependency-groups]
+dev = [
+    "moto",
+    "pre-commit",
+    "pyright",
+    "pytest",
+    "pytest-mock",
+    "pytest-watcher",
+    "pytest-xdist",
+    "requests-mock",
+    "ruff",
+    "validate-pyproject",
+]
+
+[project.urls]
+homepage = "https://github.com/EO-DataHub/"
+repository = "https://github.com/EO-DataHub/opencosmos-harvester"
+changelog = "https://github.com/EO-DataHub/opencosmos-harvester/blob/main/CHANGELOG.md"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["opencosmos_harvester"]
+
+[tool.uv]
+package = true
+
+[tool.uv.sources]
+eodhp-utils = { git = "https://github.com/EO-DataHub/eodhp-utils.git", tag = "v0.1.4" }
+
+[tool.pytest.ini_options]
+addopts = ["--import-mode=importlib"]
+markers = [
+  "integrationtest: Integration test"
+]
+
+[tool.ruff]
+line-length = 119
+
+[tool.ruff.lint]
+select = [
+    "E",    # Pycodestyle errors
+    "W",    # Pycodestyle warnings
+    "F",    # Pyflakes
+    "I",    # isort
+    "FAST", # FastAPI
+    "RUF",  # RUF-specific rules
+    "SIM",  # Simplifications
+    "B",    # Bugbear
+    "ANN",  # Annotations
+    "PLC",  # Pylint convention
+    "PLE",  # Pylint errors
+    "UP",   # pyupgrade
+    "FURB", # refurb
+    "PT",   # pytest
+]
+ignore = [
+    "E501",   # line too long
+    "SIM108", # ternary operator
+    "SIM103", # return bool directly
+    "B008",   # function call in default argument (incompatible with FastAPI)
+    "ANN401", # dynamically typed expressions (Any) are disallowed
+]

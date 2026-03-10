@@ -1,0 +1,229 @@
+{
+  "type": "Collection",
+  "stac_version": "1.1.0",
+  "stac_extensions": [
+    "https://stac-extensions.github.io/item-assets/v1.0.0/schema.json",
+    "https://stac-extensions.github.io/eo/v1.1.0/schema.json",
+    "https://stac-extensions.github.io/processing/v1.2.0/schema.json",
+    "https://stac-extensions.github.io/sat/v1.1.0/schema.json"
+  ],
+  "id": "menut-l1a-cogs",
+  "title": "Open Cosmos Menut L1A COGs",
+  "description": "Menut images, processed to L1A, at full resolution, with ancillary data in cloud optimised geotiff format",
+  "keywords": [
+    "menut",
+    "earth observation",
+    "open cosmos"
+  ],
+  "license": "other",
+  "providers": [
+    {
+      "name": "Open Cosmos",
+      "roles": [
+        "processor",
+        "producer",
+        "host"
+      ],
+      "url": "https://www.open-cosmos.com"
+    }
+  ],
+  "extent": {
+    "spatial": {
+      "bbox": [
+      ]
+    },
+    "temporal": {
+      "interval": [
+      ]
+    }
+  },
+  "summaries": {
+    "gsd": [
+      5
+    ],
+    "instruments": [
+      "multiscape100-cis"
+    ],
+    "opencosmos:collection_type": [
+      "nominal"
+    ],
+    "opencosmos:qa:rejected": [
+      false
+    ],
+    "opencosmos:resolution": [
+      "full"
+    ],
+    "opencosmos:session_id": {
+      "maximum": "999999",
+      "minimum": "0"
+    },
+    "platform": [
+      "menut"
+    ],
+    "processing:level": [
+      "L1A"
+    ],
+    "sat:platform_international_designator": [
+      "2023-001B"
+    ]
+  },
+  "links": [],
+  "assets": {},
+  "item_assets": {
+    "B": {
+      "eo:bands": [
+        {
+          "center_wavelength": 0.483,
+          "common_name": "blue",
+          "full_width_half_max": 0.065,
+          "name": "B"
+        }
+      ],
+      "roles": [
+        "data"
+      ],
+      "title": "Blue band",
+      "type": "image/tiff; application=geotiff; profile=cloud-optimized"
+    },
+    "G": {
+      "eo:bands": [
+        {
+          "center_wavelength": 0.562,
+          "common_name": "green",
+          "full_width_half_max": 0.035,
+          "name": "G"
+        }
+      ],
+      "roles": [
+        "data"
+      ],
+      "title": "Green band",
+      "type": "image/tiff; application=geotiff; profile=cloud-optimized"
+    },
+    "NIR": {
+      "eo:bands": [
+        {
+          "center_wavelength": 0.837,
+          "common_name": "nir",
+          "full_width_half_max": 0.115,
+          "name": "NIR"
+        }
+      ],
+      "roles": [
+        "data"
+      ],
+      "title": "Near infra-red band",
+      "type": "image/tiff; application=geotiff; profile=cloud-optimized"
+    },
+    "R": {
+      "eo:bands": [
+        {
+          "center_wavelength": 0.665,
+          "common_name": "red",
+          "full_width_half_max": 0.03,
+          "name": "R"
+        }
+      ],
+      "gsd": 5,
+      "roles": [
+        "data"
+      ],
+      "title": "Red band",
+      "type": "image/tiff; application=geotiff; profile=cloud-optimized"
+    },
+    "RE1": {
+      "eo:bands": [
+        {
+          "center_wavelength": 0.705,
+          "common_name": "rededge",
+          "full_width_half_max": 0.015,
+          "name": "RE1"
+        }
+      ],
+      "roles": [
+        "data"
+      ],
+      "title": "Red edge 1 band",
+      "type": "image/tiff; application=geotiff; profile=cloud-optimized"
+    },
+    "RE2": {
+      "eo:bands": [
+        {
+          "center_wavelength": 0.739,
+          "common_name": "rededge",
+          "full_width_half_max": 0.015,
+          "name": "RE2"
+        }
+      ],
+      "gsd": 5,
+      "roles": [
+        "data"
+      ],
+      "title": "Red edge 2 band",
+      "type": "image/tiff; application=geotiff; profile=cloud-optimized"
+    },
+    "RE3": {
+      "eo:bands": [
+        {
+          "center_wavelength": 0.782,
+          "common_name": "rededge",
+          "full_width_half_max": 0.02,
+          "name": "RE3"
+        }
+      ],
+      "roles": [
+        "data"
+      ],
+      "title": "Red edge 3 band",
+      "type": "image/tiff; application=geotiff; profile=cloud-optimized"
+    },
+    "TCI": {
+      "eo:bands": [
+        {
+          "center_wavelength": 0.665,
+          "common_name": "red",
+          "full_width_half_max": 0.03,
+          "name": "R"
+        },
+        {
+          "center_wavelength": 0.562,
+          "common_name": "green",
+          "full_width_half_max": 0.035,
+          "name": "G"
+        },
+        {
+          "center_wavelength": 0.483,
+          "common_name": "blue",
+          "full_width_half_max": 0.065,
+          "name": "B"
+        }
+      ],
+      "roles": [
+        "visual"
+      ],
+      "title": "True color image (RGB)",
+      "type": "image/tiff; application=geotiff; profile=cloud-optimized"
+    },
+    "metadata": {
+      "roles": [
+        "metadata"
+      ],
+      "title": "Image metadata and ancillary data",
+      "type": "application/json"
+    },
+    "overview": {
+      "roles": [
+        "overview"
+      ],
+      "title": "Overview",
+      "type": "image/webp"
+    },
+    "thumbnail": {
+      "roles": [
+        "thumbnail"
+      ],
+      "title": "Thumbnail",
+      "type": "image/webp"
+    }
+  }
+}
