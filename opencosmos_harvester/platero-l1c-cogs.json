@@ -1,0 +1,167 @@
+{
+  "type": "Collection",
+  "stac_version": "1.1.0",
+  "stac_extensions": [
+    "https://stac-extensions.github.io/item-assets/v1.0.0/schema.json",
+    "https://stac-extensions.github.io/eo/v1.1.0/schema.json"
+  ],
+  "id": "platero-l1c-cogs",
+  "title": "Open Cosmos Platero L1C",
+  "description": "Platero L1C images",
+  "keywords": [
+    "platero",
+    "earth observation",
+    "open cosmos"
+  ],
+  "license": "other",
+  "providers": [
+    {
+      "name": "Open Cosmos",
+      "roles": [
+        "processor",
+        "producer",
+        "host"
+      ],
+      "url": "https://www.open-cosmos.com"
+    }
+  ],
+  "extent": {},
+  "summaries": {
+    "gsd": [
+      5
+    ],
+    "instruments": [
+      "multiscape100-cis"
+    ],
+    "opencosmos:collection_type": [
+      "nominal"
+    ],
+    "opencosmos:qa:rejected": [
+      true,
+      false
+    ],
+    "opencosmos:resolution": [
+      "full"
+    ],
+    "opencosmos:session_id": {
+      "maximum": "999999",
+      "minimum": "0"
+    },
+    "platform": [
+      "platero"
+    ],
+    "processing:level": [
+      "L1C"
+    ],
+    "sat:platform_international_designator": [
+      "2023-174G"
+    ]
+  },
+  "links": [
+    {
+      "href": "https://www.open-cosmos.com/licenses/proprietary",
+      "rel": "license",
+      "title": "License",
+      "type": "text/html"
+    }
+  ],
+  "item_assets": {
+    "B": {
+      "description": "Cloud optimised raster data containing blue band spectral data",
+      "roles": [
+        "data"
+      ],
+      "title": "Band 0 (Blue)",
+      "type": "image/tiff; application=geotiff; profile=cloud-optimized"
+    },
+    "G": {
+      "description": "Cloud optimised raster data containing green band spectral data",
+      "roles": [
+        "data"
+      ],
+      "title": "Band 1 (Green)",
+      "type": "image/tiff; application=geotiff; profile=cloud-optimized"
+    },
+    "NIR": {
+      "description": "Cloud optimised raster data containing infra-red band spectral data",
+      "roles": [
+        "data"
+      ],
+      "title": "Band 6 (NIR)",
+      "type": "image/tiff; application=geotiff; profile=cloud-optimized"
+    },
+    "PAN": {
+      "description": "Cloud optimised raster data containing infra-red band spectral data (Platero only)",
+      "roles": [
+        "data"
+      ],
+      "title": "Band 7 (PAN)",
+      "type": "image/tiff; application=geotiff; profile=cloud-optimized"
+    },
+    "R": {
+      "description": "Cloud optimised raster data containing red band spectral data",
+      "roles": [
+        "data"
+      ],
+      "title": "Band 2 (Red)",
+      "type": "image/tiff; application=geotiff; profile=cloud-optimized"
+    },
+    "RE1": {
+      "description": "Cloud optimised raster data containing infra-red band spectral data",
+      "roles": [
+        "data"
+      ],
+      "title": "Band 3 (RedEdge 1)",
+      "type": "image/tiff; application=geotiff; profile=cloud-optimized"
+    },
+    "RE2": {
+      "description": "Cloud optimised raster data containing infra-red band spectral data",
+      "roles": [
+        "data"
+      ],
+      "title": "Band 4 (RedEdge 2)",
+      "type": "image/tiff; application=geotiff; profile=cloud-optimized"
+    },
+    "RE3": {
+      "description": "Cloud optimised raster data containing infra-red band spectral data",
+      "roles": [
+        "data"
+      ],
+      "title": "Band 5 (RedEdge 3)",
+      "type": "image/tiff; application=geotiff; profile=cloud-optimized"
+    },
+    "TCI": {
+      "description": "Cloud optimised raster data containing true colour RGB composite image",
+      "roles": [
+        "visual",
+        "data"
+      ],
+      "title": "True Colour Image",
+      "type": "image/tiff; application=geotiff; profile=cloud-optimized"
+    },
+    "ancillary": {
+      "description": "Contains both intrinsic (sensor size, pixel size, focal length, principal point, aperture length, reference frame) and extrinsics (position, velocity, angular rates, and attitude) parameters",
+      "roles": [
+        "metadata"
+      ],
+      "title": "Photogrammetric metadata",
+      "type": "application/json"
+    },
+    "metadata": {
+      "description": "to be defined in detail",
+      "roles": [
+        "metadata"
+      ],
+      "title": "Metadata and ancillary",
+      "type": "application/json"
+    },
+    "thumbnail": {
+      "description": "A low resolution true colour composite image for quick visualisation of imagery data, typically used as a preview in the browser",
+      "roles": [
+        "thumbnail"
+      ],
+      "title": "Thumbnail (TCI)",
+      "type": "image/webp"
+    }
+  }
+}

@@ -25,7 +25,7 @@ from opencosmos_harvester.utils import (
     load_config,
 )
 
-setup_logging(verbosity=2)  # DEBUG level
+setup_logging(verbosity=1)  # DEBUG level
 minimum_message_entries = int(os.environ.get("MINIMUM_MESSAGE_ENTRIES", 100))
 commercial_catalogue_root = os.getenv("COMMERCIAL_CATALOGUE_ROOT", "catalogs/commercial")
 thumbnail_bucket = os.getenv("THUMBNAIL_BUCKET", "eodhp-thumbnails")
@@ -96,8 +96,10 @@ def harvest(workspace_name: str, catalog: str, s3_bucket: str) -> None:
 
     # Search the catalogue.
     logging.info("Searching catalogue")
+    pystac_logger = logging.getLogger("pystac_client")
+    pystac_logger.setLevel(logging.INFO)
     stac_client = Client.open(config["url"], headers={"Authorization": f"Bearer {open_cosmos_api_token}"})
-    search = stac_client.search(max_items=8, limit=config["limit"], query=config["query"])
+    search = stac_client.search(max_items=9, limit=config["limit"], query=config["query"])
 
     for item in search.items():
         logging.info(f"Processing item: {item.id}")
@@ -110,6 +112,8 @@ def harvest(workspace_name: str, catalog: str, s3_bucket: str) -> None:
         thumbnail_urls[item_key] = item.assets["thumbnail"].href
         thumbnail_keys[item_key] = thumbnail_key
         item.assets["thumbnail"].href = f"https://eodhp-thumbnails.s3.eu-west-2.amazonaws.com/{thumbnail_key}"
+        # Not all STAC Extensions used are declared, so we override them here.
+        item.stac_extensions = config["stac_extensions"]
 
         item_hash = get_file_hash(json.dumps(item.to_dict(), cls=JSONCustomEncoder))
         item_start, item_end = get_item_temporal_extents(item)
@@ -139,7 +143,7 @@ def harvest(workspace_name: str, catalog: str, s3_bucket: str) -> None:
     # The harvester doesn't distinguish between updated and added items.
     to_upsert = to_add + to_update
 
-    logging.info(f"Upserting {len(to_upsert)} STAC Items to S3 ({len(to_add)} added, {len(to_update)} updated)")
+    logging.info(f"Upserting {len(to_upsert)} STAC Objects to S3 ({len(to_add)} added, {len(to_update)} updated)")
     num_chunks = len(to_upsert) // minimum_message_entries + 1
     current_chunk = 1
 
@@ -150,7 +154,7 @@ def harvest(workspace_name: str, catalog: str, s3_bucket: str) -> None:
         open_cosmos_harvester_messager.consume(msg)
         current_chunk += 1
 
-    # Remove potential thumbnails for Items that aren't being upserted.
+    # Ignore thumbnails for Items that aren't being upserted.
     thumbnail_urls = {k: v for k, v in thumbnail_urls.items() if k in to_upsert}
     logging.info(f"Uploading {len(thumbnail_urls)} thumbnails")
     for item_key in to_upsert:

@@ -57,7 +57,7 @@ def make_collection(summary: Summary, config: dict) -> dict:
     collection = load_config(f"opencosmos_harvester/{config['collection_name']}.json")
     proxy_base_url = os.environ.get("PROXY_BASE_URL", "")
 
-    for _, asset in collection.get("assets").items():
+    for _, asset in collection.get("assets", {}).items():
         if "href" in asset:
             asset["href"] = asset["href"].replace("{EODHP_BASE_URL}", proxy_base_url)
 

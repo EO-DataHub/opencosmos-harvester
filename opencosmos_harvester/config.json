@@ -14,7 +14,8 @@
     "stac_extensions": [
       "https://stac-extensions.github.io/eo/v2.0.0/schema.json",
       "https://stac-extensions.github.io/processing/v1.2.0/schema.json",
-      "https://stac-extensions.github.io/sat/v1.1.0/schema.json"
+      "https://stac-extensions.github.io/sat/v1.1.0/schema.json",
+      "https://stac-extensions.github.io/raster/v2.0.0/schema.json"
     ]
   },
   "MENUT-L1B": {
@@ -30,8 +31,48 @@
       }
     },
     "stac_extensions": [
+      "https://stac-extensions.github.io/eo/v2.0.0/schema.json",
       "https://stac-extensions.github.io/processing/v1.2.0/schema.json",
-      "https://stac-extensions.github.io/sat/v1.1.0/schema.json"
+      "https://stac-extensions.github.io/sat/v1.1.0/schema.json",
+      "https://stac-extensions.github.io/raster/v2.0.0/schema.json"
+    ]
+  },
+  "MENUT-L1C": {
+    "collection_name": "menut-l1c-cogs",
+    "url": "https://app.open-cosmos.com/api/data/v0/stac/",
+    "limit": 100,
+    "query": {
+      "platform": {
+        "eq": "menut"
+      },
+      "processing:level": {
+        "eq": "L1C"
+      }
+    },
+    "stac_extensions": [
+      "https://stac-extensions.github.io/eo/v2.0.0/schema.json",
+      "https://stac-extensions.github.io/processing/v1.2.0/schema.json",
+      "https://stac-extensions.github.io/sat/v1.1.0/schema.json",
+      "https://stac-extensions.github.io/raster/v2.0.0/schema.json"
+    ]
+  },
+  "PLATERO-L1C": {
+    "collection_name": "platero-l1c-cogs",
+    "url": "https://app.open-cosmos.com/api/data/v0/stac/",
+    "limit": 100,
+    "query": {
+      "platform": {
+        "eq": "platero"
+      },
+      "processing:level": {
+        "eq": "L1C"
+      }
+    },
+    "stac_extensions": [
+      "https://stac-extensions.github.io/eo/v2.0.0/schema.json",
+      "https://stac-extensions.github.io/processing/v1.2.0/schema.json",
+      "https://stac-extensions.github.io/sat/v1.1.0/schema.json",
+      "https://stac-extensions.github.io/raster/v2.0.0/schema.json"
     ]
   }
 }

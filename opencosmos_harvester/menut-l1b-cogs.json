@@ -3,13 +3,12 @@
   "stac_version": "1.1.0",
   "stac_extensions": [
     "https://stac-extensions.github.io/item-assets/v1.0.0/schema.json",
-    "https://stac-extensions.github.io/eo/v1.1.0/schema.json",
     "https://stac-extensions.github.io/processing/v1.2.0/schema.json",
     "https://stac-extensions.github.io/sat/v1.1.0/schema.json"
   ],
-  "id": "menut-l1a-cogs",
-  "title": "Open Cosmos Menut L1A COGs",
-  "description": "Menut images, processed to L1A, at full resolution, with ancillary data in cloud optimised geotiff format.",
+  "id": "menut-l1b-cogs",
+  "title": "Open Cosmos Menut L1B COGs",
+  "description": "Menut images, processed to L1B, at full resolution, with ancillary data in cloud optimised geotiff format.",
   "keywords": [
     "menut",
     "earth observation",
@@ -52,7 +51,7 @@
       "menut"
     ],
     "processing:level": [
-      "L1A"
+      "L1B"
     ],
     "sat:platform_international_designator": [
       "2023-001B"
@@ -68,158 +67,100 @@
   ],
   "item_assets": {
     "B": {
-      "eo:bands": [
-        {
-          "center_wavelength": 0.483,
-          "common_name": "blue",
-          "full_width_half_max": 0.065,
-          "name": "B"
-        }
-      ],
+      "description": "Cloud optimised raster data containing blue band spectral data",
       "roles": [
         "data"
       ],
-      "title": "Blue band",
+      "title": "Band 0 (Blue)",
       "type": "image/tiff; application=geotiff; profile=cloud-optimized"
     },
     "G": {
-      "eo:bands": [
-        {
-          "center_wavelength": 0.562,
-          "common_name": "green",
-          "full_width_half_max": 0.035,
-          "name": "G"
-        }
-      ],
+      "description": "Cloud optimised raster data containing green band spectral data",
       "roles": [
         "data"
       ],
-      "title": "Green band",
+      "title": "Band 1 (Green)",
       "type": "image/tiff; application=geotiff; profile=cloud-optimized"
     },
     "NIR": {
-      "eo:bands": [
-        {
-          "center_wavelength": 0.837,
-          "common_name": "nir",
-          "full_width_half_max": 0.115,
-          "name": "NIR"
-        }
-      ],
+      "description": "Cloud optimised raster data containing infra-red band spectral data",
       "roles": [
         "data"
       ],
-      "title": "Near infra-red band",
+      "title": "Band 6 (NIR)",
+      "type": "image/tiff; application=geotiff; profile=cloud-optimized"
+    },
+    "PAN": {
+      "description": "Cloud optimised raster data containing infra-red band spectral data (Platero only)",
+      "roles": [
+        "data"
+      ],
+      "title": "Band 7 (PAN)",
       "type": "image/tiff; application=geotiff; profile=cloud-optimized"
     },
     "R": {
-      "eo:bands": [
-        {
-          "center_wavelength": 0.665,
-          "common_name": "red",
-          "full_width_half_max": 0.03,
-          "name": "R"
-        }
-      ],
-      "gsd": 5,
+      "description": "Cloud optimised raster data containing red band spectral data",
       "roles": [
         "data"
       ],
-      "title": "Red band",
+      "title": "Band 2 (Red)",
       "type": "image/tiff; application=geotiff; profile=cloud-optimized"
     },
     "RE1": {
-      "eo:bands": [
-        {
-          "center_wavelength": 0.705,
-          "common_name": "rededge",
-          "full_width_half_max": 0.015,
-          "name": "RE1"
-        }
-      ],
+      "description": "Cloud optimised raster data containing infra-red band spectral data",
       "roles": [
         "data"
       ],
-      "title": "Red edge 1 band",
+      "title": "Band 3 (RedEdge 1)",
       "type": "image/tiff; application=geotiff; profile=cloud-optimized"
     },
     "RE2": {
-      "eo:bands": [
-        {
-          "center_wavelength": 0.739,
-          "common_name": "rededge",
-          "full_width_half_max": 0.015,
-          "name": "RE2"
-        }
-      ],
-      "gsd": 5,
+      "description": "Cloud optimised raster data containing infra-red band spectral data",
       "roles": [
         "data"
       ],
-      "title": "Red edge 2 band",
+      "title": "Band 4 (RedEdge 2)",
       "type": "image/tiff; application=geotiff; profile=cloud-optimized"
     },
     "RE3": {
-      "eo:bands": [
-        {
-          "center_wavelength": 0.782,
-          "common_name": "rededge",
-          "full_width_half_max": 0.02,
-          "name": "RE3"
-        }
-      ],
+      "description": "Cloud optimised raster data containing infra-red band spectral data",
       "roles": [
         "data"
       ],
-      "title": "Red edge 3 band",
+      "title": "Band 5 (RedEdge 3)",
       "type": "image/tiff; application=geotiff; profile=cloud-optimized"
     },
     "TCI": {
-      "eo:bands": [
-        {
-          "center_wavelength": 0.665,
-          "common_name": "red",
-          "full_width_half_max": 0.03,
-          "name": "R"
-        },
-        {
-          "center_wavelength": 0.562,
-          "common_name": "green",
-          "full_width_half_max": 0.035,
-          "name": "G"
-        },
-        {
-          "center_wavelength": 0.483,
-          "common_name": "blue",
-          "full_width_half_max": 0.065,
-          "name": "B"
-        }
-      ],
+      "description": "Cloud optimised raster data containing true colour RGB composite image",
       "roles": [
-        "visual"
+        "visual",
+        "data"
       ],
-      "title": "True color image (RGB)",
+      "title": "True Colour Image",
       "type": "image/tiff; application=geotiff; profile=cloud-optimized"
     },
-    "metadata": {
+    "ancillary": {
+      "description": "Contains both intrinsic (sensor size, pixel size, focal length, principal point, aperture length, reference frame) and extrinsics (position, velocity, angular rates, and attitude) parameters",
       "roles": [
         "metadata"
       ],
-      "title": "Image metadata and ancillary data",
+      "title": "Photogrammetric metadata",
       "type": "application/json"
     },
-    "overview": {
+    "metadata": {
+      "description": "to be defined in detail",
       "roles": [
-        "overview"
+        "metadata"
       ],
-      "title": "Overview",
-      "type": "image/webp"
+      "title": "Metadata and ancillary",
+      "type": "application/json"
     },
     "thumbnail": {
+      "description": "A low resolution true colour composite image for quick visualisation of imagery data, typically used as a preview in the browser",
       "roles": [
         "thumbnail"
       ],
-      "title": "Thumbnail",
+      "title": "Thumbnail (TCI)",
       "type": "image/webp"
     }
   }
