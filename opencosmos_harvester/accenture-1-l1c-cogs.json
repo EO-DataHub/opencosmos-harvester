@@ -1,0 +1,359 @@
+{
+  "type": "Collection",
+  "stac_version": "1.1.0",
+  "stac_extensions": [
+    "https://stac-extensions.github.io/item-assets/v1.0.0/schema.json",
+    "https://stac-extensions.github.io/eo/v1.1.0/schema.json"
+  ],
+  "id": "accenture-1-l1c-cogs",
+  "title": "Open Cosmos Accenture-1 L1C COGs",
+  "description": "Accenture-1 images, processed to L1C, at full resolution, with ancillary data in cloud optimised geotiff format",
+  "keywords": [
+    "accenture-1",
+    "earth observation",
+    "open cosmos"
+  ],
+  "license": "other",
+  "providers": [
+    {
+      "name": "Open Cosmos",
+      "roles": [
+        "processor",
+        "producer",
+        "host"
+      ],
+      "url": "https://www.open-cosmos.com"
+    }
+  ],
+  "extent": {},
+  "summaries": {
+    "gsd": [
+      5
+    ],
+    "instruments": [
+      "hyperscape100-cis"
+    ],
+    "opencosmos:collection_type": [
+      "nominal"
+    ],
+    "opencosmos:qa:rejected": [
+      false
+    ],
+    "opencosmos:resolution": [
+      "full"
+    ],
+    "opencosmos:session_id": {
+      "maximum": "999999",
+      "minimum": "0"
+    },
+    "platform": [
+      "accenture-1"
+    ],
+    "processing:level": [
+      "L1C"
+    ],
+    "sat:platform_international_designator": [
+      "2024-043BC",
+      "2025-276DF"
+    ]
+  },
+  "links": [
+    {
+      "href": "https://www.open-cosmos.com/licenses/proprietary",
+      "rel": "license",
+      "title": "License",
+      "type": "text/html"
+    }
+  ],
+  "item_assets": {
+    "HS0": {
+      "description": "Cloud optimised raster data containing blue band spectral data",
+      "roles": [
+        "data"
+      ],
+      "title": "Band 0 (440nm, Blue, FWHM: 15nm)",
+      "type": "image/tiff; application=geotiff; profile=cloud-optimized"
+    },
+    "HS1": {
+      "description": "Cloud optimised raster data containing blue band spectral data",
+      "roles": [
+        "data"
+      ],
+      "title": "Band 1 (455nm, Blue, FWHM: 16nm)",
+      "type": "image/tiff; application=geotiff; profile=cloud-optimized"
+    },
+    "HS10": {
+      "description": "Cloud optimised raster data containing green/yellow band spectral data",
+      "roles": [
+        "data"
+      ],
+      "title": "Band 10 (589nm, Green/Yellow, FWHM: 21nm)",
+      "type": "image/tiff; application=geotiff; profile=cloud-optimized"
+    },
+    "HS11": {
+      "description": "Cloud optimised raster data containing yellow band spectral data",
+      "roles": [
+        "data"
+      ],
+      "title": "Band 11 (605nm, Yellow, FWHM: 21nm)",
+      "type": "image/tiff; application=geotiff; profile=cloud-optimized"
+    },
+    "HS12": {
+      "description": "Cloud optimised raster data containing yellow/red band spectral data",
+      "roles": [
+        "data"
+      ],
+      "title": "Band 12 (620nm, Yellow/Red, FWHM: 22nm)",
+      "type": "image/tiff; application=geotiff; profile=cloud-optimized"
+    },
+    "HS13": {
+      "description": "Cloud optimised raster data containing red band spectral data",
+      "roles": [
+        "data"
+      ],
+      "title": "Band 13 (634nm, Red, FWHM: 22nm)",
+      "type": "image/tiff; application=geotiff; profile=cloud-optimized"
+    },
+    "HS14": {
+      "description": "Cloud optimised raster data containing red band spectral data",
+      "roles": [
+        "data"
+      ],
+      "title": "Band 14 (649nm, Red, FWHM: 23nm)",
+      "type": "image/tiff; application=geotiff; profile=cloud-optimized"
+    },
+    "HS15": {
+      "description": "Cloud optimised raster data containing red band spectral data",
+      "roles": [
+        "data"
+      ],
+      "title": "Band 15 (664nm, Red, FWHM: 23nm)",
+      "type": "image/tiff; application=geotiff; profile=cloud-optimized"
+    },
+    "HS16": {
+      "description": "Cloud optimised raster data containing red band spectral data",
+      "roles": [
+        "data"
+      ],
+      "title": "Band 16 (679nm, Red, FWHM: 24nm)",
+      "type": "image/tiff; application=geotiff; profile=cloud-optimized"
+    },
+    "HS17": {
+      "description": "Cloud optimised raster data containing red band spectral data",
+      "roles": [
+        "data"
+      ],
+      "title": "Band 17 (694nm, Red, FWHM: 24nm)",
+      "type": "image/tiff; application=geotiff; profile=cloud-optimized"
+    },
+    "HS18": {
+      "description": "Cloud optimised raster data containing red edge band spectral data",
+      "roles": [
+        "data"
+      ],
+      "title": "Band 18 (709nm, RedEdge, FWHM: 25nm)",
+      "type": "image/tiff; application=geotiff; profile=cloud-optimized"
+    },
+    "HS19": {
+      "description": "Cloud optimised raster data containing red edge band spectral data",
+      "roles": [
+        "data"
+      ],
+      "title": "Band 19 (724nm, RedEdge, FWHM: 25nm)",
+      "type": "image/tiff; application=geotiff; profile=cloud-optimized"
+    },
+    "HS2": {
+      "description": "Cloud optimised raster data containing blue band spectral data",
+      "roles": [
+        "data"
+      ],
+      "title": "Band 2 (469nm, Blue, FWHM: 16nm)",
+      "type": "image/tiff; application=geotiff; profile=cloud-optimized"
+    },
+    "HS20": {
+      "description": "Cloud optimised raster data containing red edge band spectral data",
+      "roles": [
+        "data"
+      ],
+      "title": "Band 20 (739nm, RedEdge, FWHM: 26nm)",
+      "type": "image/tiff; application=geotiff; profile=cloud-optimized"
+    },
+    "HS21": {
+      "description": "Cloud optimised raster data containing red edge band spectral data",
+      "roles": [
+        "data"
+      ],
+      "title": "Band 21 (755nm, RedEdge, FWHM: 26nm)",
+      "type": "image/tiff; application=geotiff; profile=cloud-optimized"
+    },
+    "HS22": {
+      "description": "Cloud optimised raster data containing red edge band spectral data",
+      "roles": [
+        "data"
+      ],
+      "title": "Band 22 (770nm, RedEdge, FWHM: 27nm)",
+      "type": "image/tiff; application=geotiff; profile=cloud-optimized"
+    },
+    "HS23": {
+      "description": "Cloud optimised raster data containing red edge band spectral data",
+      "roles": [
+        "data"
+      ],
+      "title": "Band 23 (785nm, RedEdge, FWHM: 27nm)",
+      "type": "image/tiff; application=geotiff; profile=cloud-optimized"
+    },
+    "HS24": {
+      "description": "Cloud optimised raster data containing near infra-red band spectral data",
+      "roles": [
+        "data"
+      ],
+      "title": "Band 24 (799nm, Near Infra-Red, FWHM: 28nm)",
+      "type": "image/tiff; application=geotiff; profile=cloud-optimized"
+    },
+    "HS25": {
+      "description": "Cloud optimised raster data containing near infra-red band spectral data",
+      "roles": [
+        "data"
+      ],
+      "title": "Band 25 (814nm, Near Infra-Red, FWHM: 28nm)",
+      "type": "image/tiff; application=geotiff; profile=cloud-optimized"
+    },
+    "HS26": {
+      "description": "Cloud optimised raster data containing near infra-red band spectral data",
+      "roles": [
+        "data"
+      ],
+      "title": "Band 26 (830nm, Near Infra-Red, FWHM: 29nm)",
+      "type": "image/tiff; application=geotiff; profile=cloud-optimized"
+    },
+    "HS27": {
+      "description": "Cloud optimised raster data containing near infra-red band spectral data",
+      "roles": [
+        "data"
+      ],
+      "title": "Band 27 (844nm, Near Infra-Red, FWHM: 29nm)",
+      "type": "image/tiff; application=geotiff; profile=cloud-optimized"
+    },
+    "HS28": {
+      "description": "Cloud optimised raster data containing near infra-red band spectral data",
+      "roles": [
+        "data"
+      ],
+      "title": "Band 28 (860nm, Near Infra-Red, FWHM: 30nm)",
+      "type": "image/tiff; application=geotiff; profile=cloud-optimized"
+    },
+    "HS29": {
+      "description": "Cloud optimised raster data containing near infra-red band spectral data",
+      "roles": [
+        "data"
+      ],
+      "title": "Band 29 (874nm, Near Infra-Red, FWHM: 31nm)",
+      "type": "image/tiff; application=geotiff; profile=cloud-optimized"
+    },
+    "HS3": {
+      "description": "Cloud optimised raster data containing blue band spectral data",
+      "roles": [
+        "data"
+      ],
+      "title": "Band 3 (485nm, Blue, FWHM: 17nm)",
+      "type": "image/tiff; application=geotiff; profile=cloud-optimized"
+    },
+    "HS30": {
+      "description": "Cloud optimised raster data containing near infra-red band spectral data",
+      "roles": [
+        "data"
+      ],
+      "title": "Band 30 (884nm, Near Infra-Red, FWHM: 31nm)",
+      "type": "image/tiff; application=geotiff; profile=cloud-optimized"
+    },
+    "HS4": {
+      "description": "Cloud optimised raster data containing blue band spectral data",
+      "roles": [
+        "data"
+      ],
+      "title": "Band 4 (499nm, Blue, FWHM: 17nm)",
+      "type": "image/tiff; application=geotiff; profile=cloud-optimized"
+    },
+    "HS5": {
+      "description": "Cloud optimised raster data containing blue/green band spectral data",
+      "roles": [
+        "data"
+      ],
+      "title": "Band 5 (515nm, Blue/Green, FWHM: 18nm)",
+      "type": "image/tiff; application=geotiff; profile=cloud-optimized"
+    },
+    "HS6": {
+      "description": "Cloud optimised raster data containing green band spectral data",
+      "roles": [
+        "data"
+      ],
+      "title": "Band 6 (529nm, Green, FWHM: 19nm)",
+      "type": "image/tiff; application=geotiff; profile=cloud-optimized"
+    },
+    "HS7": {
+      "description": "Cloud optimised raster data containing green band spectral data",
+      "roles": [
+        "data"
+      ],
+      "title": "Band 7 (545nm, Green, FWHM: 19nm)",
+      "type": "image/tiff; application=geotiff; profile=cloud-optimized"
+    },
+    "HS8": {
+      "description": "Cloud optimised raster data containing green band spectral data",
+      "roles": [
+        "data"
+      ],
+      "title": "Band 8 (560nm, Green, FWHM: 20nm)",
+      "type": "image/tiff; application=geotiff; profile=cloud-optimized"
+    },
+    "HS9": {
+      "description": "Cloud optimised raster data containing green band spectral data",
+      "roles": [
+        "data"
+      ],
+      "title": "Band 9 (574nm, Green, FWHM: 20nm)",
+      "type": "image/tiff; application=geotiff; profile=cloud-optimized"
+    },
+    "PAN": {
+      "description": "Cloud optimised raster data containing panchromatic band spectral data",
+      "roles": [
+        "data"
+      ],
+      "title": "PAN (625nm, FWHM: 250nm)",
+      "type": "image/tiff; application=geotiff; profile=cloud-optimized"
+    },
+    "TCI": {
+      "description": "Cloud optimised raster data containing true colour RGB composite image",
+      "roles": [
+        "visual",
+        "data"
+      ],
+      "title": "True Colour Image",
+      "type": "image/tiff; application=geotiff; profile=cloud-optimized"
+    },
+    "ancillary": {
+      "description": "Contains both intrinsic (sensor size, pixel size, focal length, principal point, aperture length, reference frame) and extrinsics (position, velocity, angular rates, and attitude) parameters",
+      "roles": [
+        "metadata"
+      ],
+      "title": "Photogrammetric metadata",
+      "type": "application/json"
+    },
+    "metadata": {
+      "description": "to be defined in detail",
+      "roles": [
+        "metadata"
+      ],
+      "title": "Metadata and ancillary",
+      "type": "application/json"
+    },
+    "thumbnail": {
+      "description": "A low resolution true colour composite image for quick visualisation of imagery data, typically used as a preview in the browser",
+      "roles": [
+        "thumbnail"
+      ],
+      "title": "Thumbnail (TCI)",
+      "type": "image/webp"
+    }
+  }
+}

@@ -1,0 +1,153 @@
+{
+  "type": "Collection",
+  "stac_version": "1.1.0",
+  "stac_extensions": [
+    "https://stac-extensions.github.io/eo/v1.0.0/schema.json",
+    "https://stac-extensions.github.io/view/v1.0.0/schema.json",
+    "https://stac-extensions.github.io/item-assets/v1.0.0/schema.json"
+  ],
+  "id": "mantis-l1d-cogs",
+  "title": "Open Cosmos MANTIS L1D COGs",
+  "description": "MANTIS L1D level processed Cloud Optimised GeoTIFFs",
+  "license": "other",
+  "providers": [
+    {
+      "name": "Open Cosmos Ltd.",
+      "description": "Open Cosmos is the manufacturer and operator of the MANTIS satellite",
+      "roles": [
+        "producer",
+        "processor"
+      ],
+      "url": "https://www.open-cosmos.com/"
+    },
+    {
+      "name": "SATLANTIS LLC",
+      "description": "SATLANTIS is the payload provider and also provides on ground processing",
+      "roles": [
+        "processor"
+      ],
+      "url": "https://satlantis.com/"
+    }
+  ],
+  "extent": {},
+  "summaries": {
+    "constellation": [
+      "open_constellation"
+    ],
+    "eo:bands": [
+      {
+        "center_wavelength": 0.459,
+        "common_name": "blue",
+        "description": "Blue Spectral Band",
+        "name": "B"
+      },
+      {
+        "center_wavelength": 0.559,
+        "common_name": "green",
+        "description": "Green Spectral Band",
+        "name": "G"
+      },
+      {
+        "center_wavelength": 0.665,
+        "common_name": "red",
+        "description": "Red Spectral Band",
+        "name": "R"
+      },
+      {
+        "center_wavelength": 0.833,
+        "common_name": "nir",
+        "description": "Near Infra-Red Spectral Band",
+        "name": "NIR"
+      }
+    ],
+    "gsd": {
+      "maximum": 2.2,
+      "minimum": 3.55
+    },
+    "instruments": [
+      "Satlantis ISIM-90"
+    ],
+    "opencosmos:collection_type": [
+      "nominal"
+    ],
+    "opencosmos:qa:rejected": [
+      false
+    ],
+    "opencosmos:session_id": {
+      "maximum": "999999",
+      "minimum": "0"
+    },
+    "platform": [
+      "MANTIS"
+    ],
+    "processing:level": [
+      "L1D"
+    ]
+  },
+  "links": [
+    {
+      "href": "https://www.open-cosmos.com/licenses/proprietary",
+      "rel": "license",
+      "title": "License",
+      "type": "text/html"
+    }
+  ],
+  "item_assets": {
+    "B": {
+      "roles": [
+        "data"
+      ],
+      "title": "Band 4 (Blue)",
+      "type": "image/tiff; application=geotiff; profile=cloud-optimized"
+    },
+    "G": {
+      "roles": [
+        "data"
+      ],
+      "title": "Band 3 (Green)",
+      "type": "image/tiff; application=geotiff; profile=cloud-optimized"
+    },
+    "NIR": {
+      "roles": [
+        "data"
+      ],
+      "title": "Band 1 (NIR)",
+      "type": "image/tiff; application=geotiff; profile=cloud-optimized"
+    },
+    "R": {
+      "roles": [
+        "data"
+      ],
+      "title": "Band 2 (Red)",
+      "type": "image/tiff; application=geotiff; profile=cloud-optimized"
+    },
+    "RPC": {
+      "roles": [
+        "data"
+      ],
+      "title": "Rational Polynomial Coefficients (RPCs)",
+      "type": "text/plain"
+    },
+    "TCI": {
+      "roles": [
+        "visual"
+      ],
+      "title": "True Colour Image",
+      "type": "image/tiff; application=geotiff; profile=cloud-optimized"
+    },
+    "overview": {
+      "roles": [
+        "overview"
+      ],
+      "title": "Overview (TCI)",
+      "type": "image/webp"
+    },
+    "thumbnail": {
+      "roles": [
+        "thumbnail"
+      ],
+      "title": "Thumbnail",
+      "type": "image/webp"
+    }
+  }
+}
