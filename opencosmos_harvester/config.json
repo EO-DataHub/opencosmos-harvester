@@ -2,13 +2,31 @@
   "MENUT-L1A": {
     "collection_name": "menut-l1a-cogs",
     "url": "https://app.open-cosmos.com/api/data/v0/stac/",
-    "limit": 20,
+    "limit": 100,
     "query": {
       "platform": {
         "eq": "menut"
       },
       "processing:level": {
         "eq": "L1A"
+      }
+    },
+    "stac_extensions": [
+      "https://stac-extensions.github.io/eo/v2.0.0/schema.json",
+      "https://stac-extensions.github.io/processing/v1.2.0/schema.json",
+      "https://stac-extensions.github.io/sat/v1.1.0/schema.json"
+    ]
+  },
+  "MENUT-L1B": {
+    "collection_name": "menut-l1b-cogs",
+    "url": "https://app.open-cosmos.com/api/data/v0/stac/",
+    "limit": 100,
+    "query": {
+      "platform": {
+        "eq": "menut"
+      },
+      "processing:level": {
+        "eq": "L1B"
       }
     },
     "stac_extensions": [
