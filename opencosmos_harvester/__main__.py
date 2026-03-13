@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import copy
 import hashlib
 import json
 import logging
@@ -8,20 +7,26 @@ import os
 import time
 import traceback
 import uuid
-from dataclasses import dataclass
 from datetime import datetime
+from itertools import batched
+from pathlib import Path
 from typing import Any
 
 import click
 import pystac
 import requests
+from botocore import client
+from botocore.exceptions import ClientError
 from eodhp_utils.aws.s3 import get_file_s3, upload_file_s3
-from eodhp_utils.runner import get_boto3_session, get_pulsar_client, setup_logging
+from eodhp_utils.runner import get_boto3_session, setup_logging
+from pulsar import Client as PulsarClient
 from pulsar import ConnectError
 from pystac_client import Client
 from requests.exceptions import ConnectionError, HTTPError, Timeout
 
+from opencosmos_harvester.metadata import Metadata
 from opencosmos_harvester.opencosmos_harvester_messager import JSONCustomEncoder, OpenCosmosHarvesterMessager
+from opencosmos_harvester.summary import Summary
 
 setup_logging(verbosity=2)  # DEBUG level
 
@@ -30,41 +35,8 @@ minimum_message_entries = int(os.environ.get("MINIMUM_MESSAGE_ENTRIES", 100))
 proxy_base_url = os.environ.get("PROXY_BASE_URL", "")
 max_api_retries = int(os.environ.get("MAX_API_RETRIES", 5))
 
-commercial_catalogue_root = os.getenv("COMMERCIAL_CATALOGUE_ROOT", "commercial")
-
-type BBox = tuple[float, float, float, float]
-
-
-@dataclass()
-class Extents:
-    start_datetime: datetime | None
-    end_datetime: datetime | None
-    bbox: BBox
-
-    def union(self, other: Extents) -> Extents:
-        if self.start_datetime is None and other.start_datetime is None:
-            sd = None
-        elif self.start_datetime is None:
-            sd = other.start_datetime
-        elif other.start_datetime is None:
-            sd = self.start_datetime
-        else:
-            sd = min(self.start_datetime, other.start_datetime)
-
-        if self.end_datetime is None and other.end_datetime is None:
-            ed = None
-        elif self.end_datetime is None:
-            ed = other.end_datetime
-        elif other.end_datetime is None:
-            ed = self.end_datetime
-        else:
-            ed = min(self.end_datetime, other.end_datetime)
-
-        return Extents(
-            start_datetime=sd,
-            end_datetime=ed,
-            bbox=calculate_maximum_extent([self.bbox, other.bbox]),
-        )
+commercial_catalogue_root = os.getenv("COMMERCIAL_CATALOGUE_ROOT", "catalogs/commercial")
+thumbnail_bucket = os.getenv("THUMBNAIL_BUCKET", "eodhp-thumbnails")
 
 
 def load_config(config_path: str) -> Any:
@@ -75,7 +47,8 @@ def load_config(config_path: str) -> Any:
 def get_pulsar_producer(identifier: str, config: dict, retry_count: int = 0) -> Any:
     """Initialise pulsar producer. Retry if connection fails"""
     try:
-        pulsar_client = get_pulsar_client()
+        pulsar_url = os.environ.get("PULSAR_URL")
+        pulsar_client = PulsarClient(pulsar_url, logger=logging.getLogger(__name__))
         _producer = pulsar_client.create_producer(
             topic=f"harvested{identifier}",
             producer_name=f"stac_harvester/opencosmos/{config['collection_name']}_{uuid.uuid1().hex}",
@@ -112,6 +85,7 @@ def harvest(workspace_name: str, catalog: str, s3_bucket: str) -> None:
     containing all added, updated, and deleted links since the last time the catalog was
     harvested"""
 
+    # Load application config.
     config_key = os.getenv("HARVESTER_CONFIG_KEY", "")
     config = load_config("opencosmos_harvester/config.json").get(config_key.upper())
 
@@ -119,9 +93,16 @@ def harvest(workspace_name: str, catalog: str, s3_bucket: str) -> None:
         logging.error(f"Configuration key {config_key} not found in config file.")
         return
 
+    logging.info(f"Harvesting from Open Cosmos {config_key}")
+
+    # Initialise S3.
+    logging.info("Initialising S3 client")
     s3_client = get_boto3_session().client("s3")
     s3_root = "git-harvester/"
+    key_root = f"{commercial_catalogue_root}/catalogs/opencosmos"
 
+    # Initialise Pulsar.
+    logging.info("Initialising Pulsar client")
     topic = os.getenv("TOPIC")
     identifier = f"_{topic}" if topic else ""
     producer = get_pulsar_producer(identifier, config)
@@ -132,179 +113,125 @@ def harvest(workspace_name: str, catalog: str, s3_bucket: str) -> None:
         producer=producer,
     )
 
-    harvested_data = {}
-    current_harvest_keys = set()
+    logging.info("Generating access token")
+    open_cosmos_api_token = generate_access_token()
 
-    logging.info(f"Harvesting from Open Cosmos {config_key}")
+    # Create a requests session for managing thumbnail downloading.
+    session = requests.session()
+    session.headers.update({"Authorization": f"Bearer {open_cosmos_api_token}"})
 
-    key_root = f"{commercial_catalogue_root}/catalogs/opencosmos"
-
+    # Load the existing metadata, if any.
+    logging.info("Loading existing metadata")
     metadata_s3_key = f"harvested-metadata/{config['collection_name']}"
-    current_harvest_metadata = get_file_data(s3_bucket, metadata_s3_key, s3_client)
-    previous_harvest_metadata = copy.deepcopy(current_harvest_metadata)
+    previous_harvest_metadata = Metadata.model_validate(get_harvester_metadata(s3_bucket, metadata_s3_key, s3_client))
+    current_harvest_metadata = Metadata()
+    current_harvest_items = {}
 
-    if current_harvest_metadata:
-        logging.info(f"Previously harvested URLs: {len(current_harvest_metadata) - 3}")
+    thumbnail_urls = {}
+    thumbnail_keys = {}
 
-    latest_harvested = {}
-
-    current_extents = None
-
-    catalogue_data = make_catalogue()
-    catalogue_key = f"{key_root}.json"
-    previous_hash = current_harvest_metadata.get(catalogue_key)
-    current_harvest_keys.add(catalogue_key)
-    file_hash = get_file_hash(json.dumps(catalogue_data, cls=JSONCustomEncoder))
-
-    if not previous_hash or previous_hash != file_hash:
-        # URL was not harvested previously
-        logging.info(f"Added: {catalogue_key}")
-        harvested_data[catalogue_key] = catalogue_data
-        latest_harvested[catalogue_key] = file_hash
-
-    collection_key = f"{key_root}/collections/{config['collection_name']}.json"
-    current_harvest_keys.add(collection_key)
-
-    old_collection_data = get_file_data(s3_bucket, f"{s3_root}{collection_key}", s3_client)
-    old_collection = pystac.Collection.from_dict(old_collection_data) if old_collection_data else None
-    logging.info(f"Found previous collection data in {s3_bucket}: {collection_key}, {old_collection_data}")
-
-    if old_collection:
-        bb = old_collection.extent.spatial.bboxes[0]
-        bb2d = (-180.0, -90.0, 180.0, 90.0)
-        if bb:
-            if len(bb) == 4:
-                bb2d = (bb[0], bb[1], bb[2], bb[3])
-            elif len(bb) == 6:
-                bb2d = (bb[0], bb[1], bb[3], bb[4])
-
-        current_extents = Extents(
-            old_collection.extent.temporal.intervals[0][0],
-            old_collection.extent.temporal.intervals[0][1],
-            bb2d,
-        )
-
-        logging.info(f"Previous harvest data recovered: {current_extents}")
-
-    catalogue_data_summary = current_harvest_metadata.get("summary")
-    if catalogue_data_summary and not current_extents:
-        current_extents = summary_to_extents(catalogue_data_summary)
-
-    first = True
-    token = generate_access_token()
-    client = Client.open(config["url"], headers={"Authorization": f"Bearer {token}"})
-    search = client.search(max_items=6, limit=config["limit"], query=config["query"])
-
-    # Prepare the collection template.
-    stac_template = load_config(f"opencosmos_harvester/{config['collection_name']}.json")
-    for _, asset in stac_template.get("assets").items():
-        if "href" in asset:
-            asset["href"] = asset["href"].replace("{EODHP_BASE_URL}", proxy_base_url)
+    # Search the catalogue.
+    logging.info("Searching catalogue")
+    stac_client = Client.open(config["url"], headers={"Authorization": f"Bearer {open_cosmos_api_token}"})
+    search = stac_client.search(max_items=8, limit=config["limit"], query=config["query"])
 
     for item in search.items():
+        logging.info(f"Processing item: {item.id}")
         file_name = f"{item.id}.json"
-        key = f"{key_root}/collections/{config['collection_name']}/items/{file_name}"
-        current_harvest_keys.add(key)
+        item_key = f"{key_root}/collections/{config['collection_name']}/items/{file_name}"
 
-        previous_hash = current_harvest_metadata.get(key)
+        # Modify the Item's thumbnail href to point to a public bucket.
+        thumbnail_file_name = Path(item_key).with_suffix(".webp").name
+        thumbnail_key = f"opencosmos/{config['collection_name']}/thumb_{thumbnail_file_name}"
+        thumbnail_urls[item_key] = item.assets["thumbnail"].href
+        thumbnail_keys[item_key] = thumbnail_key
+        item.assets["thumbnail"].href = f"https://eodhp-thumbnails.s3.eu-west-2.amazonaws.com/{thumbnail_key}"
 
         item_hash = get_file_hash(json.dumps(item.to_dict(), cls=JSONCustomEncoder))
-        if not previous_hash or previous_hash != item_hash:
-            # Data was not harvested previously
-            logging.info(f"Added: {key}")
-            harvested_data[key] = item.to_dict()
-            latest_harvested[key] = item_hash
-        else:
-            logging.info(f"Skipping: {key}")
+        item_start, item_end = get_item_temporal_extents(item)
+        item_bbox = flatten_item_spatial_extents(item)
+        summary = Summary(bbox=item_bbox, start=item_start, end=item_end)
+        current_harvest_metadata.add_item(summary, item_key, item_hash)
+        current_harvest_items[item_key] = item.to_dict()
 
-        if not current_extents:
-            current_extents = item_to_extents(item)
-        else:
-            current_extents = current_extents.union(item_to_extents(item))
+    logging.info(f"Found {len(current_harvest_items)} items")
 
-        # Collection updates every loop so that start/stop times and bbox values are the latest
-        # ones from the Open Cosmos catalogue
-        collection_data = generate_stac_collection(current_extents, stac_template)
-        last_run_hash = latest_harvested.get(collection_key)
-        previous_hash = last_run_hash or current_harvest_metadata.get(collection_key)
+    logging.info("Creating catalogue and collection objects")
+    catalogue_data = make_catalogue()
+    catalogue_key = f"{key_root}.json"
+    catalogue_hash = get_file_hash(json.dumps(catalogue_data, cls=JSONCustomEncoder))
+    current_harvest_metadata.files[catalogue_key] = catalogue_hash
+    current_harvest_items[catalogue_key] = catalogue_data
 
-        file_hash = get_file_hash(json.dumps(collection_data, cls=JSONCustomEncoder))
-        # Make sure collection level is sent during first message. Only send changes after that
-        if first or (not previous_hash or previous_hash != file_hash):
-            first = False
-            # Data was not harvested previously
-            logging.info(f"Added: {collection_key}")
-            harvested_data[collection_key] = collection_data
-            latest_harvested[collection_key] = file_hash
+    combined_summary = previous_harvest_metadata.summary | current_harvest_metadata.summary
+    collection_data = make_collection(combined_summary, config)
+    collection_key = f"{key_root}/collections/{config['collection_name']}.json"
+    collection_hash = get_file_hash(json.dumps(collection_data, cls=JSONCustomEncoder))
+    current_harvest_metadata.files[collection_key] = collection_hash
+    current_harvest_items[collection_key] = collection_data
 
-        latest_harvested["summary"] = extents_to_summary(current_extents)
+    to_delete, to_add, to_update = previous_harvest_metadata.build_change_list(current_harvest_metadata)
 
-        if len(harvested_data.keys()) >= minimum_message_entries:
-            # Send message for altered keys
-            msg = {
-                "harvested_data": harvested_data,
-                "deleted_keys": [],
-            }
+    # The harvester doesn't distinguish between updated and added items.
+    to_upsert = to_add + to_update
 
-            for key, value in latest_harvested.items():
-                current_harvest_metadata[key] = value
+    logging.info(f"Upserting {len(to_upsert)} STAC Items to S3 ({len(to_add)} added, {len(to_update)} updated)")
+    num_chunks = len(to_upsert) // minimum_message_entries + 1
+    current_chunk = 1
 
-            logging.info(f"Sending message with {len(harvested_data.keys())} entries")
+    for upsert_chunk in batched(to_upsert, minimum_message_entries, strict=False):
+        logging.info(f"Sending message chunk {current_chunk}/{num_chunks}")
+        chunk_data = {key: current_harvest_items[key] for key in upsert_chunk}
+        msg = {"harvested_data": chunk_data, "deleted_keys": []}
+        opencosmos_harvester_messager.consume(msg)
+        current_chunk += 1
+
+    thumbnail_urls = {k: v for k, v in thumbnail_urls.items() if k in to_upsert}
+    logging.info(f"Uploading {len(thumbnail_urls)} thumbnails")
+    for item_key in to_upsert:
+        if item_key not in thumbnail_urls:
+            continue
+
+        with session.get(thumbnail_urls[item_key], stream=True) as r:
+            if r.status_code == 200:
+                s3_client.put_object(Bucket=thumbnail_bucket, Key=thumbnail_keys[item_key], Body=r.content)
+
+    if len(to_delete) > 0:
+        logging.info(f"Deleting {len(to_delete)} STAC Items from S3")
+        num_chunks = len(to_delete) // minimum_message_entries + 1
+        current_chunk = 1
+
+        for deleted_chunk in batched(to_delete, minimum_message_entries, strict=False):
+            logging.info(f"Sending message chunk {current_chunk}/{num_chunks}")
+            msg = {"harvested_data": [], "deleted_keys": list(deleted_chunk)}
             opencosmos_harvester_messager.consume(msg)
-            logging.info(f"Uploading metadata to S3: {len(current_harvest_metadata)} items")
-            upload_file_s3(
-                json.dumps(current_harvest_metadata, cls=JSONCustomEncoder), s3_bucket, metadata_s3_key, s3_client
-            )
-            logging.info("Uploaded metadata to S3")
-            harvested_data = {}
-            latest_harvested = {}
+            current_chunk += 1
 
-    # Make sure new collection is sent in final message
-    collection_data = generate_stac_collection(current_extents, stac_template)
-    file_hash = get_file_hash(json.dumps(collection_data, cls=JSONCustomEncoder))
+    logging.info("Uploading metadata to S3")
+    upload_file_s3(
+        json.dumps(current_harvest_metadata.to_legacy_json(), cls=JSONCustomEncoder),
+        s3_bucket,
+        metadata_s3_key,
+        s3_client,
+    )
 
-    logging.info(f"Added: {collection_key}")
-    harvested_data[collection_key] = collection_data
-    latest_harvested[collection_key] = file_hash
-
-    # Any leftover items not sent during final loop because the minimum wasn't met
-    logging.info(f"Adding final keys: {len(current_harvest_metadata)} items")
-    for key, value in latest_harvested.items():
-        current_harvest_metadata[key] = value
-        current_harvest_keys.add(key)
-
-    # Compare items harvested this run to the ones harvested in the previous run to find deletions
-    deleted_keys = find_deleted_keys(current_harvest_keys, previous_harvest_metadata)
-
-    logging.info(f"Removing {len(deleted_keys)} deleted keys: {len(current_harvest_metadata)} items")
-    for key in deleted_keys:
-        del current_harvest_metadata[key]
-    logging.info(f"Deleted keys removed: {len(current_harvest_metadata)} items")
-
-    # Send message for altered keys
-    msg = {"harvested_data": harvested_data, "deleted_keys": deleted_keys}
-
-    logging.info(f"Sending message with {len(harvested_data.keys())} entries and {len(deleted_keys)} deleted keys")
-    opencosmos_harvester_messager.consume(msg)
-
-    logging.info(f"Uploading metadata to S3: {len(current_harvest_metadata)} items")
-    upload_file_s3(json.dumps(current_harvest_metadata, cls=JSONCustomEncoder), s3_bucket, metadata_s3_key, s3_client)
-    logging.info("Uploaded metadata to S3")
+    logging.info("Finished")
 
 
-def find_deleted_keys(new: set, old: dict) -> list:
-    """Find differences between two dictionaries"""
-    return list(set(old).difference(new))
+def get_file_hash(data: str) -> str:
+    """Returns hash of data available"""
+
+    def _md5_hash(byte_str: bytes) -> str:
+        """Calculates an md5 hash for given bytestring"""
+        md5 = hashlib.md5()
+        md5.update(byte_str)
+        return md5.hexdigest()
+
+    return _md5_hash(data.encode("utf-8"))
 
 
-def item_to_extents(item: pystac.Item) -> Extents:
-    if item.datetime is None:
-        start_time = item.common_metadata.start_datetime
-        stop_time = item.common_metadata.end_datetime
-    else:
-        start_time = item.datetime
-        stop_time = item.datetime
-
+def flatten_item_spatial_extents(item: pystac.Item) -> tuple[float, float, float, float]:
+    """Flatten an item's boudning box to 2D"""
     bb = item.bbox
     bb2d = (-180.0, -90.0, 180.0, 90.0)
     if bb:
@@ -313,16 +240,28 @@ def item_to_extents(item: pystac.Item) -> Extents:
         elif len(bb) == 6:
             bb2d = (bb[0], bb[1], bb[3], bb[4])
 
-    return Extents(start_time, stop_time, bb2d)
+    return bb2d
 
 
-def calculate_maximum_extent(bboxes: list[BBox]) -> BBox:
-    minx = max(-180.0, min(b[0] for b in bboxes))
-    miny = max(-90.0, min(b[1] for b in bboxes))
-    maxx = min(180.0, max(b[2] for b in bboxes))
-    maxy = min(90.0, max(b[3] for b in bboxes))
+def get_item_temporal_extents(item: pystac.Item) -> tuple[datetime | None, datetime | None]:
+    if item.datetime is None:
+        start_time = item.common_metadata.start_datetime
+        stop_time = item.common_metadata.end_datetime
+    else:
+        start_time = item.datetime
+        stop_time = item.datetime
 
-    return minx, miny, maxx, maxy
+    return start_time, stop_time
+
+
+def get_harvester_metadata(bucket: str, key: str, s3_client: client.BaseClient) -> dict:
+    """Read file at given S3 location and parse as JSON"""
+    try:
+        s3_client.head_object(Bucket=bucket, Key=key)
+    except ClientError:
+        return {}
+
+    return json.loads(get_file_s3(bucket, key, s3_client))
 
 
 def generate_access_token(env: str = "dev", retry_count: int = 0) -> str:
@@ -367,70 +306,17 @@ def generate_access_token(env: str = "dev", retry_count: int = 0) -> str:
         return generate_access_token(env, retry_count=retry_count + 1)
 
 
-def get_file_hash(data: str) -> str:
-    """Returns hash of data available"""
+def make_collection(summary: Summary, config: dict) -> dict:
+    collection = load_config(f"opencosmos_harvester/{config['collection_name']}.json")
 
-    def _md5_hash(byte_str: bytes) -> str:
-        """Calculates an md5 hash for given bytestring"""
-        md5 = hashlib.md5()
-        md5.update(byte_str)
-        return md5.hexdigest()
+    for _, asset in collection.get("assets").items():
+        if "href" in asset:
+            asset["href"] = asset["href"].replace("{EODHP_BASE_URL}", proxy_base_url)
 
-    return _md5_hash(data.encode("utf-8"))
-
-
-def get_file_data(bucket: str, key: str, s3_client: Any) -> dict:
-    """Read file at given S3 location and parse as JSON"""
-    previously_harvested = get_file_s3(bucket, key, s3_client)
-    try:
-        previously_harvested = json.loads(previously_harvested)
-    except TypeError:
-        previously_harvested = {}
-    return previously_harvested
-
-
-def bbox_to_coordinates(bbox: BBox) -> list:
-    # This function exists to maintain compatibility with other harvesters.
-    """Converts bbox to coordinates in clockwise order."""
-    return [[bbox[0], bbox[1]], [bbox[0], bbox[3]], [bbox[2], bbox[1]], [bbox[2], bbox[3]]]
-
-
-def summary_to_extents(summary: dict) -> Extents:
-    # This function exists to maintain compatibility with other harvesters.
-    # Coordinates were calculated incorrectly with other harvesters, and we just want a bbox.
-    coords = summary["coordinates"]
-    minx = min(c[0] for c in coords)
-    miny = min(c[1] for c in coords)
-    maxx = max(c[0] for c in coords)
-    maxy = max(c[1] for c in coords)
-    current_extents = Extents(
-        summary["start_time"][0],
-        summary["stop_time"][0],
-        (minx, miny, maxx, maxy),
-    )
-    return current_extents
-
-
-def extents_to_summary(extents: Extents) -> dict:
-    # This function exists to maintain compatibility with other harvesters.
-    coords = bbox_to_coordinates(extents.bbox)
-
-    return {
-        "coordinates": coords,
-        "start_time": [extents.start_datetime.isoformat() if extents.start_datetime else None],
-        "stop_time": [extents.end_datetime.isoformat() if extents.end_datetime else None],
+    collection["extent"] = {
+        "spatial": {"bbox": [summary.bbox]},
+        "temporal": {"interval": [[summary.start, summary.end]]},
     }
-
-
-def generate_stac_collection(total_extents: Extents | None, stac_template: dict) -> dict:
-    """Top level collection for Open Cosmos data"""
-    collection = stac_template.copy()
-
-    if total_extents:
-        collection["extent"] = {
-            "spatial": {"bbox": [total_extents.bbox]},
-            "temporal": {"interval": [[total_extents.start_datetime, total_extents.end_datetime]]},
-        }
 
     return collection
 
