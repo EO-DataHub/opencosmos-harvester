@@ -113,6 +113,25 @@
       "https://stac-extensions.github.io/raster/v2.0.0/schema.json"
     ]
   },
+  "HAMMER-L1C-purchased": {
+    "collection_name": "hammer-l1c-cogs",
+    "url": "https://app.open-cosmos.com/api/data/v0/scenario/scenario/4709d550-5827-4316-88c6-a354b09723d5/",
+    "limit": 100,
+    "query": {
+      "platform": {
+        "eq": "hammer"
+      },
+      "processing:level": {
+        "eq": "L1C"
+      }
+    },
+    "stac_extensions": [
+      "https://stac-extensions.github.io/eo/v2.0.0/schema.json",
+      "https://stac-extensions.github.io/processing/v1.2.0/schema.json",
+      "https://stac-extensions.github.io/sat/v1.1.0/schema.json",
+      "https://stac-extensions.github.io/raster/v2.0.0/schema.json"
+    ]
+  },
   "ACCENTURE1-L1C": {
     "collection_name": "accenture-1-l1c-cogs",
     "url": "https://app.open-cosmos.com/api/data/v0/stac/",

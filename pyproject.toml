@@ -31,7 +31,8 @@ dependencies = [
     "pystac",
     "pystac-client",
     "requests",
-    "pydantic"
+    "pydantic",
+    "pillow"
 ]
 
 [dependency-groups]

@@ -147,7 +147,7 @@
         "thumbnail"
       ],
       "title": "Thumbnail",
-      "type": "image/webp"
+      "type": "image/png"
     }
   }
 }

@@ -352,7 +352,7 @@
         "thumbnail"
       ],
       "title": "Thumbnail (TCI)",
-      "type": "image/webp"
+      "type": "image/png"
     }
   }
 }

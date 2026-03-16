@@ -11,6 +11,7 @@ import pystac
 from botocore import client
 from botocore.exceptions import ClientError
 from eodhp_utils.aws.s3 import get_file_s3
+from eodhp_utils.runner import setup_logging
 from pulsar import Client as PulsarClient
 from pulsar import ConnectError
 
@@ -18,6 +19,23 @@ from pulsar import ConnectError
 def load_config(config_path: str) -> Any:
     with open(config_path) as f:
         return json.load(f)
+
+
+def set_logging(verbosity: int) -> None:
+    setup_logging(verbosity=verbosity)
+
+    if verbosity == 0:
+        logging.getLogger("PIL").setLevel(logging.ERROR)
+        logging.getLogger(__name__).setLevel(logging.ERROR)
+    elif verbosity == 1:
+        logging.getLogger("PIL").setLevel(logging.WARNING)
+        logging.getLogger(__name__).setLevel(logging.WARNING)
+    elif verbosity == 2:
+        logging.getLogger("PIL").setLevel(logging.INFO)
+        logging.getLogger(__name__).setLevel(logging.INFO)
+    elif verbosity > 2:
+        logging.getLogger("PIL").setLevel(logging.DEBUG)
+        logging.getLogger(__name__).setLevel(logging.DEBUG)
 
 
 def get_file_hash(data: str) -> str:

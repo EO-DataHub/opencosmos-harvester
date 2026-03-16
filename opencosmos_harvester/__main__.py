@@ -3,13 +3,15 @@ from __future__ import annotations
 import json
 import logging
 import os
+from io import BytesIO
 from itertools import batched
 from pathlib import Path
 
 import click
 import requests
 from eodhp_utils.aws.s3 import upload_file_s3
-from eodhp_utils.runner import get_boto3_session, setup_logging
+from eodhp_utils.runner import get_boto3_session
+from PIL import Image
 from pystac_client import Client
 
 from opencosmos_harvester.metadata import Metadata
@@ -23,9 +25,10 @@ from opencosmos_harvester.utils import (
     get_item_temporal_extents,
     get_pulsar_producer,
     load_config,
+    set_logging,
 )
 
-setup_logging(verbosity=1)  # DEBUG level
+set_logging(verbosity=2)
 minimum_message_entries = int(os.environ.get("MINIMUM_MESSAGE_ENTRIES", 100))
 commercial_catalogue_root = os.getenv("COMMERCIAL_CATALOGUE_ROOT", "catalogs/commercial")
 thumbnail_bucket = os.getenv("THUMBNAIL_BUCKET", "eodhp-thumbnails")
@@ -91,7 +94,7 @@ def harvest(workspace_name: str, catalog: str, s3_bucket: str) -> None:
     previous_harvest_metadata = Metadata.model_validate(get_harvester_metadata(s3_bucket, metadata_s3_key, s3_client))
     current_harvest_metadata = Metadata()
     current_harvest_items = {}
-    thumbnail_urls = {}
+    thumbnail_download_urls = {}
     thumbnail_keys = {}
 
     # Search the catalogue.
@@ -99,19 +102,22 @@ def harvest(workspace_name: str, catalog: str, s3_bucket: str) -> None:
     pystac_logger = logging.getLogger("pystac_client")
     pystac_logger.setLevel(logging.INFO)
     stac_client = Client.open(config["url"], headers={"Authorization": f"Bearer {open_cosmos_api_token}"})
-    search = stac_client.search(max_items=9, limit=config["limit"], query=config["query"])
+    search = stac_client.search(
+        max_items=config.get("debug_max_items", None), limit=config["limit"], query=config["query"]
+    )
+    logging.info(f"Found {search.matched()} items")
 
     for item in search.items():
-        logging.info(f"Processing item: {item.id}")
         file_name = f"{item.id}.json"
         item_key = f"{key_root}/collections/{config['collection_name']}/items/{file_name}"
 
         # Modify the Item's thumbnail href to point to a public bucket.
-        thumbnail_file_name = Path(item_key).with_suffix(".webp").name
+        thumbnail_download_urls[item_key] = item.assets["thumbnail"].href
+        thumbnail_file_name = Path(item_key).with_suffix(".png").name
         thumbnail_key = f"opencosmos/{config['collection_name']}/thumb_{thumbnail_file_name}"
-        thumbnail_urls[item_key] = item.assets["thumbnail"].href
         thumbnail_keys[item_key] = thumbnail_key
         item.assets["thumbnail"].href = f"https://eodhp-thumbnails.s3.eu-west-2.amazonaws.com/{thumbnail_key}"
+        item.assets["thumbnail"].media_type = "image/png"
         # Not all STAC Extensions used are declared, so we override them here.
         item.stac_extensions = config["stac_extensions"]
 
@@ -121,8 +127,6 @@ def harvest(workspace_name: str, catalog: str, s3_bucket: str) -> None:
         summary = Summary(bbox=item_bbox, start=item_start, end=item_end)
         current_harvest_metadata.add_item(summary, item_key, item_hash)
         current_harvest_items[item_key] = item.to_dict()
-
-    logging.info(f"Found {len(current_harvest_items)} items")
 
     logging.info("Creating catalogue and collection objects")
     catalogue_data = make_catalogue()
@@ -155,15 +159,21 @@ def harvest(workspace_name: str, catalog: str, s3_bucket: str) -> None:
         current_chunk += 1
 
     # Ignore thumbnails for Items that aren't being upserted.
-    thumbnail_urls = {k: v for k, v in thumbnail_urls.items() if k in to_upsert}
-    logging.info(f"Uploading {len(thumbnail_urls)} thumbnails")
+    thumbnail_download_urls = {k: v for k, v in thumbnail_download_urls.items() if k in to_upsert}
+    logging.info(f"Uploading {len(thumbnail_download_urls)} thumbnails")
     for item_key in to_upsert:
-        if item_key not in thumbnail_urls:
+        if item_key not in thumbnail_download_urls:
             continue
 
-        with session.get(thumbnail_urls[item_key], stream=True) as r:
-            if r.status_code == 200:
-                s3_client.put_object(Bucket=thumbnail_bucket, Key=thumbnail_keys[item_key], Body=r.content)
+        try:
+            with session.get(thumbnail_download_urls[item_key], stream=True) as r:
+                if r.status_code == 200:
+                    thumbnail = Image.open(r.content)
+                    membuf = BytesIO()
+                    thumbnail.save(membuf, format="png")
+                    s3_client.put_object(Bucket=thumbnail_bucket, Key=thumbnail_keys[item_key], Body=membuf.getvalue())
+        except requests.exceptions.RequestException as e:
+            logging.error(f"Failed to download thumbnail for {item_key}: {e}")
 
     logging.info(f"Deleting {len(to_delete)} STAC Items from S3")
     num_chunks = len(to_delete) // minimum_message_entries + 1
@@ -171,7 +181,7 @@ def harvest(workspace_name: str, catalog: str, s3_bucket: str) -> None:
 
     for deleted_chunk in batched(to_delete, minimum_message_entries, strict=False):
         logging.info(f"Sending message chunk {current_chunk}/{num_chunks}")
-        msg = {"harvested_data": [], "deleted_keys": list(deleted_chunk)}
+        msg = {"harvested_data": {}, "deleted_keys": list(deleted_chunk)}
         open_cosmos_harvester_messager.consume(msg)
         current_chunk += 1
 
