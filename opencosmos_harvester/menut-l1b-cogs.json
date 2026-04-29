@@ -65,6 +65,15 @@
       "type": "text/html"
     }
   ],
+  "assets": {
+    "thumbnail": {
+      "href": "https://eodhp-thumbnails.s3.eu-west-2.amazonaws.com/opencosmos/thumb_menut-l1b-cogs.jpg",
+      "type": "image/jpg",
+      "roles": [
+        "thumbnail"
+      ]
+    }
+  },
   "item_assets": {
     "B": {
       "description": "Cloud optimised raster data containing blue band spectral data",

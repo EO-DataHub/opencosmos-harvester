@@ -64,6 +64,15 @@
       "type": "text/html"
     }
   ],
+  "assets": {
+    "thumbnail": {
+      "href": "https://eodhp-thumbnails.s3.eu-west-2.amazonaws.com/opencosmos/thumb_hammer-l1c-cogs.jpg",
+      "type": "image/jpg",
+      "roles": [
+        "thumbnail"
+      ]
+    }
+  },
   "item_assets": {
     "HS0": {
       "description": "Cloud optimised raster data containing blue band spectral data",

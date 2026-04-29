@@ -111,13 +111,19 @@ def harvest(workspace_name: str, catalog: str, s3_bucket: str) -> None:
         file_name = f"{item.id}.json"
         item_key = f"{key_root}/collections/{config['collection_name']}/items/{file_name}"
 
+        # Some assets (menut-l1c-cogs for instance) may have empty hrefs, so we remove them.
+        sanitized_assets = {k: v for k, v in item.assets.items() if v.href.strip() != ""}
+        item.assets = sanitized_assets
+
         # Modify the Item's thumbnail href to point to a public bucket.
-        thumbnail_download_urls[item_key] = item.assets["thumbnail"].href
-        thumbnail_file_name = Path(item_key).with_suffix(".png").name
-        thumbnail_key = f"opencosmos/{config['collection_name']}/thumb_{thumbnail_file_name}"
-        thumbnail_keys[item_key] = thumbnail_key
-        item.assets["thumbnail"].href = f"https://eodhp-thumbnails.s3.eu-west-2.amazonaws.com/{thumbnail_key}"
-        item.assets["thumbnail"].media_type = "image/png"
+        if "thumbnail" in item.assets:
+            thumbnail_download_urls[item_key] = item.assets["thumbnail"].href
+            thumbnail_file_name = Path(item_key).with_suffix(".png").name
+            thumbnail_key = f"opencosmos/{config['collection_name']}/thumb_{thumbnail_file_name}"
+            thumbnail_keys[item_key] = thumbnail_key
+            item.assets["thumbnail"].href = f"https://eodhp-thumbnails.s3.eu-west-2.amazonaws.com/{thumbnail_key}"
+            item.assets["thumbnail"].media_type = "image/png"
+
         # Not all STAC Extensions used are declared, so we override them here.
         item.stac_extensions = config["stac_extensions"]
 
@@ -161,17 +167,16 @@ def harvest(workspace_name: str, catalog: str, s3_bucket: str) -> None:
     # Ignore thumbnails for Items that aren't being upserted.
     thumbnail_download_urls = {k: v for k, v in thumbnail_download_urls.items() if k in to_upsert}
     logging.info(f"Uploading {len(thumbnail_download_urls)} thumbnails")
-    for item_key in to_upsert:
-        if item_key not in thumbnail_download_urls:
-            continue
-
+    for item_key, thumbnail_url in thumbnail_download_urls.items():
         try:
-            with session.get(thumbnail_download_urls[item_key], stream=True) as r:
+            with session.get(thumbnail_url, stream=True) as r:
                 if r.status_code == 200:
-                    thumbnail = Image.open(r.content)
-                    membuf = BytesIO()
-                    thumbnail.save(membuf, format="png")
-                    s3_client.put_object(Bucket=thumbnail_bucket, Key=thumbnail_keys[item_key], Body=membuf.getvalue())
+                    thumbnail = Image.open(BytesIO(r.raw.read()))
+                    png_buffer = BytesIO()
+                    thumbnail.save(png_buffer, format="png")
+                    s3_client.put_object(
+                        Bucket=thumbnail_bucket, Key=thumbnail_keys[item_key], Body=png_buffer.getvalue()
+                    )
         except requests.exceptions.RequestException as e:
             logging.error(f"Failed to download thumbnail for {item_key}: {e}")
 

@@ -32,7 +32,9 @@ dependencies = [
     "pystac-client",
     "requests",
     "pydantic",
-    "pillow"
+    "pillow",
+    "datacosmos==1.2.0",
+    "icecream==2.2.0",
 ]
 
 [dependency-groups]

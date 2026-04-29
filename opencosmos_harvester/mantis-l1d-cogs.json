@@ -60,10 +60,9 @@
         "name": "NIR"
       }
     ],
-    "gsd": {
-      "maximum": 2.2,
-      "minimum": 3.55
-    },
+    "gsd": [
+      3.55
+    ],
     "instruments": [
       "Satlantis ISIM-90"
     ],
@@ -92,6 +91,15 @@
       "type": "text/html"
     }
   ],
+  "assets": {
+    "thumbnail": {
+      "href": "https://eodhp-thumbnails.s3.eu-west-2.amazonaws.com/opencosmos/thumb_mantis-l1d-cogs.jpg",
+      "type": "image/jpg",
+      "roles": [
+        "thumbnail"
+      ]
+    }
+  },
   "item_assets": {
     "B": {
       "roles": [
