@@ -91,7 +91,7 @@ def get_pulsar_producer(identifier: str, config: dict, retry_count: int = 0) -> 
         pulsar_client = PulsarClient(pulsar_url, logger=logging.getLogger(__name__))
         _producer = pulsar_client.create_producer(
             topic=f"harvested{identifier}",
-            producer_name=f"stac_harvester/opencosmos/{config['collection_name']}_{uuid.uuid1().hex}",
+            producer_name=f"stac_harvester/open-cosmos/{config['collection_name']}_{uuid.uuid1().hex}",
             chunking_enabled=True,
         )
         return _producer

@@ -67,7 +67,7 @@ def harvest(workspace_name: str, catalog: str, s3_bucket: str) -> None:
     logging.info("Initialising S3 client")
     s3_client = get_boto3_session().client("s3")
     s3_root = "git-harvester/"
-    key_root = f"{commercial_catalogue_root}/catalogs/opencosmos"
+    key_root = f"{commercial_catalogue_root}/catalogs/open-cosmos"
 
     # Initialise Pulsar.
     logging.info("Initialising Pulsar client")
@@ -119,7 +119,7 @@ def harvest(workspace_name: str, catalog: str, s3_bucket: str) -> None:
         if "thumbnail" in item.assets:
             thumbnail_download_urls[item_key] = item.assets["thumbnail"].href
             thumbnail_file_name = Path(item_key).with_suffix(".png").name
-            thumbnail_key = f"opencosmos/{config['collection_name']}/thumb_{thumbnail_file_name}"
+            thumbnail_key = f"open-cosmos/{config['collection_name']}/thumb_{thumbnail_file_name}"
             thumbnail_keys[item_key] = thumbnail_key
             item.assets["thumbnail"].href = f"https://eodhp-thumbnails.s3.eu-west-2.amazonaws.com/{thumbnail_key}"
             item.assets["thumbnail"].media_type = "image/png"
