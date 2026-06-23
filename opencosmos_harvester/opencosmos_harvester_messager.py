@@ -48,7 +48,7 @@ class OpenCosmosHarvesterMessager(Messager[dict]):
 
     def gen_empty_catalogue_message(self, msg: Any) -> dict:
         return {
-            "id": "harvester/opencosmos",
+            "id": "harvester/open-cosmos",
             "workspace": "default_workspace",
             "repository": "",
             "branch": "",

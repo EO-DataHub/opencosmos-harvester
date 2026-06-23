@@ -9,7 +9,7 @@
   "id": "mantis-l1d-cogs",
   "title": "Open Cosmos MANTIS L1D COGs",
   "description": "MANTIS L1D level processed Cloud Optimised GeoTIFFs",
-  "license": "other",
+  "license": "proprietary",
   "providers": [
     {
       "name": "Open Cosmos Ltd.",

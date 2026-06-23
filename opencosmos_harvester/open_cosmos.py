@@ -73,7 +73,7 @@ def make_catalogue() -> dict:
     """Top level catalogue for Open Cosmos data"""
     stac_catalog = {
         "type": "Catalog",
-        "id": "opencosmos",
+        "id": "open-cosmos",
         "stac_version": "1.0.0",
         "description": "Open Cosmos Datasets",
         "links": [],
