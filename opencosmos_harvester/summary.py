@@ -90,10 +90,13 @@ class Summary(BaseModel):
 
         # Legacy JSON shape
         if isinstance(data, dict) and "coordinates" in data:
+            coordinates = data["coordinates"]
+            start_time = data.get("start_time") and data["start_time"][0]
+            stop_time = data.get("stop_time") and data["stop_time"][0]
             return {
-                "bbox": Summary._bbox_from_coords(data["coordinates"]),
-                "start": datetime.fromisoformat(data["start_time"][0]),
-                "end": datetime.fromisoformat(data["stop_time"][0]),
+                "bbox": Summary._bbox_from_coords(coordinates) if coordinates else None,
+                "start": datetime.fromisoformat(start_time) if start_time else None,
+                "end": datetime.fromisoformat(stop_time) if stop_time else None,
             }
 
         # Already in canonical dict shape
