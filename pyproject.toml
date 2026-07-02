@@ -65,6 +65,13 @@ packages = ["opencosmos_harvester"]
 
 [tool.uv]
 package = true
+# datacosmos==1.2.0 exactly pins requests==2.31.0 and oauthlib==3.2.0, both of which
+# have known CVEs. Override to force patched versions; datacosmos only uses basic
+# request/OAuth functionality unaffected by these patch-level bumps.
+override-dependencies = [
+    "requests>=2.33.0",
+    "oauthlib>=3.2.2",
+]
 
 [tool.uv.sources]
 eodhp-utils = { git = "https://github.com/EO-DataHub/eodhp-utils.git", tag = "v0.1.4" }
