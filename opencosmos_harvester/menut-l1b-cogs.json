@@ -100,7 +100,7 @@
       "type": "image/tiff; application=geotiff; profile=cloud-optimized"
     },
     "PAN": {
-      "description": "Cloud optimised raster data containing infra-red band spectral data (Platero only)",
+      "description": "Cloud optimised raster data containing infra-red band spectral data",
       "roles": [
         "data"
       ],
