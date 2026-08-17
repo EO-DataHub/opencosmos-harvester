@@ -243,7 +243,7 @@ wheels = [
 
 [[package]]
 name = "datacosmos"
-version = "1.3.0"
+version = "1.4.1"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "oauthlib" },
@@ -257,9 +257,9 @@ dependencies = [
     { name = "structlog" },
     { name = "tenacity" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/85/a2/d36bef63b45e646c5441f90a9665c0b3a478924c0226f2ec99a493e62983/datacosmos-1.3.0.tar.gz", hash = "sha256:c6fbca56d72cbc5e5d89a83602201f47d93d49c9f63fbdfc81525728cae98c15", size = 88317, upload-time = "2026-04-24T13:14:43.872Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/24/79/8241d53d8b665c8a2e77cbb88d7302b40f5f18504d60ab122ad356ff4ed0/datacosmos-1.4.1.tar.gz", hash = "sha256:4f1461055c79af3faabe7242aa7512ce5c24b6329ffde00a79dc1b837852a009", size = 91778, upload-time = "2026-08-07T19:55:59.574Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/e2/70/801e3d3f4e6f1534d5bba04780a551909ee2a3caff97011da9594ee1763b/datacosmos-1.3.0-py3-none-any.whl", hash = "sha256:cf268600a5214e63e0b5862c42afaaa8684a2e8dc8dbff47b6a98df1a623dca1", size = 67845, upload-time = "2026-04-24T13:14:42.359Z" },
+    { url = "https://files.pythonhosted.org/packages/6b/3a/9c20aaf601e76a4984ea4410786d666ea24857044aa9743c08f06a5aa36e/datacosmos-1.4.1-py3-none-any.whl", hash = "sha256:0031865ceee1dcebc5b7d18761fa7b375807c1d8142e99b395fa7b6ac4d6895c", size = 69407, upload-time = "2026-08-07T19:55:57.984Z" },
 ]
 
 [[package]]
@@ -596,7 +596,7 @@ requires-dist = [
     { name = "boto3" },
     { name = "botocore" },
     { name = "click" },
-    { name = "datacosmos", specifier = "==1.3.0" },
+    { name = "datacosmos", specifier = "==1.4.1" },
     { name = "eodhp-utils", git = "https://github.com/EO-DataHub/eodhp-utils.git?tag=v0.1.4" },
     { name = "icecream", specifier = "==2.2.0" },
     { name = "inflection" },
