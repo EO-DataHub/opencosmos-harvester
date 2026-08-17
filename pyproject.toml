@@ -33,7 +33,7 @@ dependencies = [
     "requests",
     "pydantic",
     "pillow>=12.2.0",
-    "datacosmos==1.3.0",
+    "datacosmos==1.4.1",
     "icecream==2.2.0",
 ]
 
