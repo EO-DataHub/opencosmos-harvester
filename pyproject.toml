@@ -65,6 +65,7 @@ packages = ["opencosmos_harvester"]
 
 [tool.uv]
 package = true
+exclude-newer = "7 days"
 # datacosmos==1.2.0 exactly pins requests==2.31.0 and oauthlib==3.2.0, both of which
 # have known CVEs. Override to force patched versions; datacosmos only uses basic
 # request/OAuth functionality unaffected by these patch-level bumps.
