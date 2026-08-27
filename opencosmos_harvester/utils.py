@@ -81,7 +81,14 @@ def get_harvester_metadata(bucket: str, key: str, s3_client: client.BaseClient) 
     except ClientError:
         return {}
 
-    return json.loads(get_file_s3(bucket, key, s3_client))
+    file_body = get_file_s3(bucket, key, s3_client)
+    if file_body is None:
+        # get_file_s3 returns None when the read fails (eodhp-utils >=0.1.13 types this explicitly).
+        # Previously this raised TypeError from json.loads(None); keep failing loudly rather than
+        # silently treating a read failure as "no previous harvest".
+        raise RuntimeError(f"Failed to read harvester metadata from s3://{bucket}/{key}")
+
+    return json.loads(file_body)
 
 
 def get_pulsar_producer(identifier: str, config: dict, retry_count: int = 0) -> Any:

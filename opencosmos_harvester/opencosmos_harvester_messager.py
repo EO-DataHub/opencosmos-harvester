@@ -16,7 +16,7 @@ class JSONCustomEncoder(json.JSONEncoder):
         return super().default(o)
 
 
-class OpenCosmosHarvesterMessager(Messager[dict]):
+class OpenCosmosHarvesterMessager(Messager[dict, bytes]):
     """
     Loads STAC files harvested from the Open Cosmos API into an S3 bucket with file key relating to the
     owning catalog combined with the file path in the external catalogue.

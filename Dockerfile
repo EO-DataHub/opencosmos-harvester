@@ -6,8 +6,8 @@ ENV UV_NO_CACHE=1
 
 WORKDIR /app
 
-# Install git (needed for git dependencies)
-RUN apt-get update && apt-get install -y --no-install-recommends git && rm -rf /var/lib/apt/lists/*
+# Install git (needed for git dependencies) and g++ (needed to build pysubnettree, a source-only eodhp-utils dependency)
+RUN apt-get update && apt-get install -y --no-install-recommends git g++ && rm -rf /var/lib/apt/lists/*
 
 # Install dependencies
 RUN --mount=type=cache,target=/root/.cache/uv \
