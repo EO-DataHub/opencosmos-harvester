@@ -460,8 +460,8 @@ wheels = [
 
 [[package]]
 name = "eodhp-utils"
-version = "0.1.14"
-source = { git = "https://github.com/EO-DataHub/eodhp-utils.git?tag=v0.1.14#17593ff08601e8756a57605071636fd681f91870" }
+version = "0.1.15"
+source = { git = "https://github.com/EO-DataHub/eodhp-utils.git?tag=v0.1.15#3abdaa14c6bbf3ff1bde46b8499362400c4d5165" }
 dependencies = [
     { name = "boto3" },
     { name = "botocore" },
@@ -803,7 +803,7 @@ requires-dist = [
     { name = "botocore" },
     { name = "click" },
     { name = "datacosmos", specifier = "==1.4.1" },
-    { name = "eodhp-utils", git = "https://github.com/EO-DataHub/eodhp-utils.git?tag=v0.1.14" },
+    { name = "eodhp-utils", git = "https://github.com/EO-DataHub/eodhp-utils.git?tag=v0.1.15" },
     { name = "icecream", specifier = "==2.2.0" },
     { name = "inflection" },
     { name = "pillow", specifier = ">=12.2.0" },
